@@ -1,4 +1,6 @@
 import Algorithms.FCFS;
+import Algorithms.SRTF;
+
 import java.util.Scanner;
 
 public class Main {
@@ -13,6 +15,6 @@ public class Main {
         int[] burstTime = new int[numberOfProcess];
         for(int i=0; i<numberOfProcess; i++) burstTime[i] = scanner.nextInt();
 
-        FCFS.simulateFCFS(arrivalTime, burstTime);
+        SRTF.simulateSRTF(arrivalTime, burstTime);
     }
 }
