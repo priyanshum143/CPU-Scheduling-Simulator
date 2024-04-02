@@ -1,7 +1,4 @@
 import Algorithms.FCFS;
-import Algorithms.SRTF;
-import Algorithms.ShortestJobFirst;
-
 import java.util.Scanner;
 
 public class Main {
