@@ -62,7 +62,7 @@ public class SRTF {
 
         double avgWaitTime = (double) totalWaitTime / (double) numberOfProcess;
         double avgTAT = (double) totalTAT / (double) numberOfProcess;
-        double throughput = (double) currTime / (double) numberOfProcess;
+        double throughput = (double) numberOfProcess / (double) currTime;
 
         System.out.println("Average Wait Time => " + avgWaitTime);
         System.out.println("Average Turn Around Time => " + avgTAT);
