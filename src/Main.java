@@ -1,4 +1,5 @@
 import Algorithms.FCFS;
+import Algorithms.RoundRobin;
 import Algorithms.SRTF;
 
 import java.util.Scanner;
@@ -15,6 +16,6 @@ public class Main {
         int[] burstTime = new int[numberOfProcess];
         for(int i=0; i<numberOfProcess; i++) burstTime[i] = scanner.nextInt();
 
-        SRTF.simulateSRTF(arrivalTime, burstTime);
+        RoundRobin.simulateRR(arrivalTime, burstTime, 3);
     }
 }
