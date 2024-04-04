@@ -1,33 +1,42 @@
 package Algorithms;
 
 public class ShortestJobFirst {
-    public static void simulateSJF(int[] arrivalTime, int[] burstTime) {
-        calculateMetrics(arrivalTime, burstTime);
+    public static ProcessInfo simulateSJF(int[] arrivalTime, int[] burstTime) {
+        ProcessInfo process = new ProcessInfo(arrivalTime, burstTime);
+        calculateMetrics(process);
+        return process;
     }
 
-    private static void calculateMetrics(int[] arrivalTime, int[] burstTime) {
-        int numberOfProcess = arrivalTime.length;
+    private static void calculateMetrics(ProcessInfo process) {
+        int numberOfProcess = process.arrivalTime.length;
 
-        int currTime = 0;
-        int totalTAT = 0, totalWaitTime = 0;
-        for(int i=0; i<numberOfProcess; i++) {
-            int idx = findMinAT(arrivalTime, burstTime, currTime);
+        // Making a copy of arrivalTime because we will be updating arrival time of terminated processes
+        int[] tempArrivalTime = new int[numberOfProcess];
+        for(int i=0; i<numberOfProcess; i++) tempArrivalTime[i] = process.arrivalTime[i];
 
-            totalWaitTime += currTime - arrivalTime[idx];
-            currTime += burstTime[idx];
-            totalTAT += currTime - arrivalTime[idx];
+        // Initially the current time will be equal to the lowest arrival time
+        int currTime = minArrivalTime(tempArrivalTime);
+        double totalTAT = 0, totalWaitTime = 0;
 
-            arrivalTime[idx] = Integer.MAX_VALUE;
+        for(int i=1; i<=numberOfProcess; i++) {
+            int idx = findMinAT(tempArrivalTime, process.burstTime, currTime);
+
+            totalWaitTime += currTime - tempArrivalTime[idx];
+            process.waitingTime[idx] = currTime - tempArrivalTime[idx];
+
+            currTime += process.burstTime[idx];
+
+            totalTAT += currTime - tempArrivalTime[idx];
+            process.turnAroundTime[idx] = currTime - tempArrivalTime[idx];
+
+            // Updating the arrival time of current process to max int value
+            // so that we don't get the same process everytime
+            tempArrivalTime[idx] = Integer.MAX_VALUE;
         }
 
-        double avgWaitTime =  (double) totalWaitTime / (double) numberOfProcess;
-        double avgTAT = (double) totalTAT / (double) numberOfProcess;
-        double throughput = (double) numberOfProcess / (double) currTime;
-
-        System.out.println("Average Waiting Time => " + avgWaitTime);
-        System.out.println("Average Turn Around Time => " + avgTAT);
-        System.out.println("Throughput => " + throughput);
-        System.out.println("Number of Context Switches => " + (numberOfProcess - 1));
+        process.avgWaitTime = totalWaitTime / numberOfProcess;
+        process.avgTAT = totalTAT / numberOfProcess;
+        process.throughput = numberOfProcess / (double) currTime;
     }
 
     private static int findMinAT(int[] arrivalTime, int[] burstTime, int currTime) {
@@ -39,5 +48,15 @@ public class ShortestJobFirst {
             }
         }
         return idx;
+    }
+
+    private static int minArrivalTime(int[] arrivalTime) {
+        int minTime = Integer.MAX_VALUE;
+        for(int i=0; i<arrivalTime.length; i++) {
+            if(arrivalTime[i] < minTime) {
+                minTime = arrivalTime[i];
+            }
+        }
+        return minTime;
     }
 }

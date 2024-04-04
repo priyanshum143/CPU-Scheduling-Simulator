@@ -15,7 +15,7 @@ public class Main {
         int[] burstTime = new int[numberOfProcess];
         for(int i=0; i<numberOfProcess; i++) burstTime[i] = scanner.nextInt();
 
-        ProcessInfo process = FCFS.simulateFCFS(arrivalTime, burstTime);
+        ProcessInfo process = ShortestJobFirst.simulateSJF(arrivalTime, burstTime);
         System.out.println("Arrival Time -> " + Arrays.toString(process.arrivalTime));
         System.out.println("Burst Time -> " + Arrays.toString(process.burstTime));
         System.out.println("Waiting Time -> " + Arrays.toString(process.waitingTime));
