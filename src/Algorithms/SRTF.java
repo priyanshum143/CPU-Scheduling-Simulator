@@ -6,19 +6,22 @@ import java.util.PriorityQueue;
 import java.util.Stack;
 
 public class SRTF {
-    public static void simulateSRTF(int[] arrivalTime, int[] burstTime) {
-        calculateMetrics(arrivalTime, burstTime);
+    public static ProcessInfo simulateSRTF(int[] arrivalTime, int[] burstTime) {
+        ProcessInfo process = new ProcessInfo(arrivalTime, burstTime);
+        calculateMetrics(arrivalTime, burstTime, process);
+        return process;
     }
 
-    private static void calculateMetrics(int[] arrivalTime, int[] burstTime) {
+    private static void calculateMetrics(int[] arrivalTime, int[] burstTime, ProcessInfo process) {
         int numberOfProcess = arrivalTime.length;
 
-        int[] initialBurstTime = new int[numberOfProcess];
-        for(int i=0; i<numberOfProcess; i++) initialBurstTime[i] = burstTime[i];
+        int[] tempBurstTime = new int[numberOfProcess];
+        for(int i=0; i<numberOfProcess; i++) tempBurstTime[i] = burstTime[i];
 
+        // Initially the current time will be equal to the lowest arrival time
+        int currTime = 0;
         int totalWaitTime = 0, totalTAT = 0;
 
-        int currTime = 0;
         PriorityQueue<Integer> cpu = new PriorityQueue<>();
 
         HashMap<Integer, Boolean> isAdded = new HashMap<>();
@@ -70,6 +73,7 @@ public class SRTF {
         System.out.println("Number of context switches => " + contextSwitches);
     }
 
+    // This function will find the minimum burst time according to the current time
     private static int findMinAt(int[] arrivalTime, int[] burstTime, int currTime) {
         int idx = -1, minTime = Integer.MAX_VALUE;
         for(int i=0; i<arrivalTime.length; i++) {
