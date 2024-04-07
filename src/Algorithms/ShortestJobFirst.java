@@ -39,6 +39,7 @@ public class ShortestJobFirst {
         process.throughput = numberOfProcess / (double) currTime;
     }
 
+    // This function will find the minimum burst time according to the current time
     private static int findMinAT(int[] arrivalTime, int[] burstTime, int currTime) {
         int idx = -1, minTime = Integer.MAX_VALUE;
         for(int i=0; i<arrivalTime.length; i++) {
@@ -50,6 +51,8 @@ public class ShortestJobFirst {
         return idx;
     }
 
+    // This function is used to find the minimum arrival time
+    // Initially we want our current time to be equal to the minimum arrival time.
     private static int minArrivalTime(int[] arrivalTime) {
         int minTime = Integer.MAX_VALUE;
         for(int i=0; i<arrivalTime.length; i++) {

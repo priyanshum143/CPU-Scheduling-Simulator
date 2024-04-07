@@ -39,6 +39,7 @@ public class FCFS {
         process.throughput = numberOfProcess / (double) currTime;
     }
 
+    // This function will find the minimum arrival time according to the current time
     private static int findMinAT(int[] arrivalTime) {
         int idx = -1, minTime = Integer.MAX_VALUE;
         for(int i=0; i<arrivalTime.length; i++) {
