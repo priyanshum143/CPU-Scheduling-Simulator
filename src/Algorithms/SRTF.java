@@ -1,83 +1,72 @@
 package Algorithms;
 
-import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.PriorityQueue;
-import java.util.Stack;
 
 public class SRTF {
     public static ProcessInfo simulateSRTF(int[] arrivalTime, int[] burstTime) {
         ProcessInfo process = new ProcessInfo(arrivalTime, burstTime);
-        calculateMetrics(arrivalTime, burstTime, process);
+        calculateMetrics(process);
         return process;
     }
 
-    private static void calculateMetrics(int[] arrivalTime, int[] burstTime, ProcessInfo process) {
-        int numberOfProcess = arrivalTime.length;
+    private static void calculateMetrics(ProcessInfo process) {
+        int numberOfProcess = process.arrivalTime.length;
 
-        int[] tempBurstTime = new int[numberOfProcess];
-        for(int i=0; i<numberOfProcess; i++) tempBurstTime[i] = burstTime[i];
+        // Making a copy of burstTime because we will be continuously updating burst time of processes
+        int[] remainingBurstTime = process.burstTime.clone();
 
-        // Initially the current time will be equal to the lowest arrival time
+        // Initially the current time will be equal to 0
         int currTime = 0;
-        int totalWaitTime = 0, totalTAT = 0;
+        double totalWaitTime = 0, totalTAT = 0;
 
-        PriorityQueue<Integer> cpu = new PriorityQueue<>();
+        // This heap will run the process with the shortest remaining burst time first
+        PriorityQueue<Integer> CPU = new PriorityQueue<>();
 
+        // HashMap will check if the current process is already been added to the CPU or not
         HashMap<Integer, Boolean> isAdded = new HashMap<>();
-        for(int i=0; i<numberOfProcess; i++) { isAdded.put(i, false); }
-        int currProcess = -1, prevProcess = -1;
+        for(int i=0; i<numberOfProcess; i++) isAdded.put(i, false);
 
-        int contextSwitches = -1;
-
-        int i = 0;
-        while(i < numberOfProcess) {
-            currProcess = findMinAt(arrivalTime, burstTime, currTime);
-            if(currProcess != prevProcess) contextSwitches++;
-
+        int currProcess = -1, processCompleted = 0;
+        while(processCompleted < numberOfProcess) {
+            currProcess = findMinAt(process.arrivalTime, remainingBurstTime, currTime);
             if(!isAdded.get(currProcess)) {
-                cpu.add(burstTime[currProcess]);
                 isAdded.put(currProcess, true);
-                i++;
+                CPU.add(remainingBurstTime[currProcess]);
             }
 
             currTime += 1;
-            burstTime[currProcess] -= 1;
-            if(!cpu.isEmpty()) {
-                cpu.add(cpu.poll() - 1);
-                if(cpu.peek() == 0) {
-                    cpu.poll();
-                    burstTime[currProcess] = Integer.MAX_VALUE;
+            remainingBurstTime[currProcess] -= 1;
+            CPU.add(CPU.poll() - 1);
 
-                    totalWaitTime += (currTime - arrivalTime[currProcess] - initialBurstTime[currProcess]);
-                    totalTAT += (currTime - arrivalTime[currProcess]);
-                }
+            // Checking if the current process is completed or not
+            if(CPU.peek() == 0) {
+                processCompleted += 1;
+                remainingBurstTime[currProcess] = Integer.MAX_VALUE;
+                CPU.poll();
+
+                process.waitingTime[currProcess] = currTime - process.arrivalTime[currProcess] - process.burstTime[currProcess];
+                totalWaitTime += (currTime - process.arrivalTime[currProcess] - process.burstTime[currProcess]);
+
+                process.turnAroundTime[currProcess] = currTime - process.arrivalTime[currProcess];
+                totalTAT += (currTime - process.arrivalTime[currProcess]);
             }
-
-            prevProcess = currProcess;
         }
 
-        while(!cpu.isEmpty()) {
-            currTime += cpu.poll();
-            totalWaitTime += (currTime - arrivalTime[currProcess] - initialBurstTime[currProcess]);
-            totalTAT += (currTime - arrivalTime[currProcess]);
-        }
+        double avgWaitTime = totalWaitTime / numberOfProcess;
+        double avgTAT = totalTAT / numberOfProcess;
+        double throughput = numberOfProcess / (double) currTime;
 
-        double avgWaitTime = (double) totalWaitTime / (double) numberOfProcess;
-        double avgTAT = (double) totalTAT / (double) numberOfProcess;
-        double throughput = (double) numberOfProcess / (double) currTime;
-
-        System.out.println("Average Wait Time => " + avgWaitTime);
-        System.out.println("Average Turn Around Time => " + avgTAT);
-        System.out.println("Throughput => " + throughput);
-        System.out.println("Number of context switches => " + contextSwitches);
+        process.avgWaitTime = avgWaitTime;
+        process.avgTAT = avgTAT;
+        process.throughput = throughput;
     }
 
     // This function will find the minimum burst time according to the current time
     private static int findMinAt(int[] arrivalTime, int[] burstTime, int currTime) {
         int idx = -1, minTime = Integer.MAX_VALUE;
         for(int i=0; i<arrivalTime.length; i++) {
-            if (arrivalTime[i] <= currTime && burstTime[i] < minTime) {
+            if(arrivalTime[i] <= currTime && burstTime[i] < minTime) {
                 minTime = burstTime[i];
                 idx = i;
             }
