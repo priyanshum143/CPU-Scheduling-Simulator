@@ -11,8 +11,7 @@ public class ShortestJobFirst {
         int numberOfProcess = process.arrivalTime.length;
 
         // Making a copy of arrivalTime because we will be updating arrival time of terminated processes
-        int[] tempArrivalTime = new int[numberOfProcess];
-        for(int i=0; i<numberOfProcess; i++) tempArrivalTime[i] = process.arrivalTime[i];
+        int[] tempArrivalTime = process.arrivalTime.clone();
 
         // Initially the current time will be equal to the lowest arrival time
         int currTime = minArrivalTime(tempArrivalTime);
