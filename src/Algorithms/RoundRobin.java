@@ -3,82 +3,98 @@ package Algorithms;
 import java.util.*;
 
 public class RoundRobin {
-    public static void simulateRR(int[] arrivalTime, int[] burstTime, int timeQuantum) {
-        calculateMetrics(arrivalTime, burstTime, timeQuantum);
+    public static ProcessInfo simulateRR(int[] arrivalTime, int[] burstTime, int timeQuantum) {
+        ProcessInfo process = new ProcessInfo(arrivalTime, burstTime);
+        calculateMetrics(process, timeQuantum);
+        return process;
     }
 
-    private static void calculateMetrics(int[] arrivalTime, int[] burstTime, int timeQuantum) {
-        int[] initialArrivalTime = new int[arrivalTime.length];
-        for(int i=0; i<arrivalTime.length; i++) initialArrivalTime[i] = arrivalTime[i];
+    private static void calculateMetrics(ProcessInfo process, int timeQuantum) {
+        int numberOfProcess = process.arrivalTime.length;
 
-        int contextSwitches = 0;
-        int totalWaitTime = 0, totalTAT = 0;
+        // Making a copy of arrivalTime because we will be updating arrival time of added processes
+        int[] tempArrivalTime = process.arrivalTime.clone();
 
+        // Initially the current time will be equal to 0
         int currTime = 0;
-        int idx = findMinAT(arrivalTime, currTime);
-        arrivalTime[idx] = Integer.MAX_VALUE;
+        double totalWaitTime = 0, totalTAT = 0;
 
-        boolean flag = true;
+        int currProcess = findMinAT(process.arrivalTime, currTime);
+        tempArrivalTime[currProcess] = Integer.MAX_VALUE;
 
-        Queue<Integer> cpu = new ArrayDeque<>();
-        cpu.add(burstTime[idx]);
-        Queue<Integer> index = new ArrayDeque<>();
-        index.add(idx);
+        // Flag = false will determine that all the processes has already been added to the CPU
+        boolean Flag = true;
 
-        while(!cpu.isEmpty()) {
-            int remainingTime = cpu.peek();
+        // This queue will contain the burst time of processes
+        Queue<Integer> CPU = new ArrayDeque<>();
+        CPU.add(process.burstTime[currProcess]);
+
+        // This queue will contain the process Ids(index) of processes
+        Queue<Integer> processID = new ArrayDeque<>();
+        processID.add(currProcess);
+
+        while(!CPU.isEmpty()) {
+            int remainingTime = CPU.peek();
             currTime += Math.min(remainingTime, timeQuantum);
 
-            if(flag) flag = scheduler(arrivalTime, burstTime, currTime, cpu, index);
+            // Add all the new processes whose arrival time is less than the current time
+            if(Flag) Flag = scheduler(tempArrivalTime, process.burstTime, currTime, CPU, processID);
 
             if(remainingTime <= timeQuantum) {
-                totalWaitTime += (currTime - initialArrivalTime[index.peek()] - burstTime[index.peek()]);
-                totalTAT += (currTime - initialArrivalTime[index.peek()]);
+                process.waitingTime[processID.peek()] = currTime - process.arrivalTime[processID.peek()] - process.burstTime[processID.peek()];
+                totalWaitTime += (currTime - process.arrivalTime[processID.peek()] - process.burstTime[processID.peek()]);
 
-                cpu.remove();
-                index.remove();
+                process.turnAroundTime[processID.peek()] = currTime - process.arrivalTime[processID.peek()];
+                totalTAT += (currTime - process.arrivalTime[processID.peek()]);
+
+                CPU.remove();
+                processID.remove();
             } else {
-                cpu.add(cpu.remove() - timeQuantum);
-                index.add(index.remove());
+                CPU.add(CPU.remove() - timeQuantum);
+                processID.add(processID.remove());
             }
-
-            if(!cpu.isEmpty()) contextSwitches++;
         }
 
-        double avgWaitTime = (double) totalWaitTime / (double) arrivalTime.length;
-        double avgTAT = (double) totalTAT / (double) arrivalTime.length;
-        double throughput = (double) arrivalTime.length / (double) currTime;
+        double avgWaitTime = totalWaitTime / numberOfProcess;
+        double avgTAT = totalTAT / numberOfProcess;
+        double throughput = numberOfProcess / (double) currTime;
 
-        System.out.println("Average Waiting Time => " + avgWaitTime);
-        System.out.println("Average Turn Around Time => " + avgTAT);
-        System.out.println("Throughput => " + throughput);
-        System.out.println("Number of Context Switches => " + contextSwitches);
+        process.avgWaitTime = avgWaitTime;
+        process.avgTAT = avgTAT;
+        process.throughput = throughput;
     }
 
-    private static boolean scheduler(int[] arrivalTime, int[] burstTime, int currTime, Queue<Integer> cpu, Queue<Integer> index) {
-        boolean flag = false;
+    // This function will add all the processes in CPU and processID, whose arrival time is less than current time
+    private static boolean scheduler(int[] arrivalTime, int[] burstTime, int currTime, Queue<Integer> CPU, Queue<Integer> processID) {
+        boolean Flag = false;
+
+        // This map will map the arrivalTime of process to its processId
         HashMap<Integer, Integer> map = new HashMap<>();
+
+        // This array will contain all the processes whose arrival time is less than or equal to the current time
         ArrayList<Integer> processes = new ArrayList<>();
 
         for(int i=0; i<arrivalTime.length; i++) {
             if(arrivalTime[i] <= currTime) {
-               flag = true;
-               processes.add(arrivalTime[i]);
-               map.put(arrivalTime[i], i);
-               arrivalTime[i] = Integer.MAX_VALUE;
+                Flag = true;
+                processes.add(arrivalTime[i]);
+                map.put(arrivalTime[i], i);
+                arrivalTime[i] = Integer.MAX_VALUE;
             }
         }
 
+        // Sorting the processes array i.e. process will less arrival time will come first
         Collections.sort(processes);
 
         for(Integer process : processes) {
-            cpu.add(burstTime[map.get(process)]);
-            index.add(map.get(process));
+            CPU.add(burstTime[map.get(process)]);
+            processID.add(map.get(process));
         }
 
-        return flag;
+        return Flag;
     }
 
+    // This function will find the minimum arrival time according to the current time
     private static int findMinAT(int[] arrivalTime, int currTime) {
         int idx = -1, minTime = Integer.MAX_VALUE;
         for(int i=0; i<arrivalTime.length; i++) {
