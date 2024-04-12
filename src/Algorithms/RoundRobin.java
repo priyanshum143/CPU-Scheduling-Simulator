@@ -1,5 +1,7 @@
 package Algorithms;
 
+import Utils.ProcessInfo;
+
 import java.util.*;
 
 public class RoundRobin {
@@ -18,6 +20,9 @@ public class RoundRobin {
         // Initially the current time will be equal to 0
         int currTime = 0;
         double totalWaitTime = 0, totalTAT = 0;
+
+        // Starting the context switches from -1 because we have to ignore the case where last process gets terminated
+        int contextSwitches = -1;
 
         int currProcess = findMinAT(process.arrivalTime, currTime);
         tempArrivalTime[currProcess] = Integer.MAX_VALUE;
@@ -53,6 +58,8 @@ public class RoundRobin {
                 CPU.add(CPU.remove() - timeQuantum);
                 processID.add(processID.remove());
             }
+
+            contextSwitches++;
         }
 
         double avgWaitTime = totalWaitTime / numberOfProcess;
@@ -61,7 +68,8 @@ public class RoundRobin {
 
         process.avgWaitTime = avgWaitTime;
         process.avgTAT = avgTAT;
-        process.throughput = throughput;
+        process.throughput = Math.round(throughput * 100.0) / 100.0;
+        process.contextSwitches = contextSwitches;
     }
 
     // This function will add all the processes in CPU and processID, whose arrival time is less than current time

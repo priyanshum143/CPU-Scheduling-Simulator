@@ -1,5 +1,7 @@
 package Algorithms;
 
+import Utils.ProcessInfo;
+
 import java.util.HashMap;
 import java.util.PriorityQueue;
 
@@ -20,6 +22,9 @@ public class SRTF {
         int currTime = 0;
         double totalWaitTime = 0, totalTAT = 0;
 
+        // Starting the context switches from -1 because we have to ignore the case where last process gets terminated
+        int contextSwitches = -1;
+
         // This heap will run the process with the shortest remaining burst time first
         PriorityQueue<Integer> CPU = new PriorityQueue<>();
 
@@ -27,9 +32,13 @@ public class SRTF {
         HashMap<Integer, Boolean> isAdded = new HashMap<>();
         for(int i=0; i<numberOfProcess; i++) isAdded.put(i, false);
 
-        int currProcess = -1, processCompleted = 0;
+        int currProcess = -1, prevProcess = -1;
+        int processCompleted = 0;
+
         while(processCompleted < numberOfProcess) {
             currProcess = findMinAt(process.arrivalTime, remainingBurstTime, currTime);
+            if(currProcess != prevProcess) contextSwitches++;
+
             if(!isAdded.get(currProcess)) {
                 isAdded.put(currProcess, true);
                 CPU.add(remainingBurstTime[currProcess]);
@@ -51,6 +60,8 @@ public class SRTF {
                 process.turnAroundTime[currProcess] = currTime - process.arrivalTime[currProcess];
                 totalTAT += (currTime - process.arrivalTime[currProcess]);
             }
+
+            prevProcess = currProcess;
         }
 
         double avgWaitTime = totalWaitTime / numberOfProcess;
@@ -59,7 +70,8 @@ public class SRTF {
 
         process.avgWaitTime = avgWaitTime;
         process.avgTAT = avgTAT;
-        process.throughput = throughput;
+        process.throughput = Math.round(throughput * 100.0) / 100.0;
+        process.contextSwitches = contextSwitches;
     }
 
     // This function will find the minimum burst time according to the current time

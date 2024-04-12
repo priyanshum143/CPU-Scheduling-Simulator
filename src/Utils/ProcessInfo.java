@@ -1,4 +1,4 @@
-package Algorithms;
+package Utils;
 
 public class ProcessInfo {
     public int[] arrivalTime;
@@ -9,6 +9,7 @@ public class ProcessInfo {
     public double avgWaitTime;
     public double avgTAT;
     public double throughput;
+    public int contextSwitches;
 
     public ProcessInfo(int[] arrivalTime, int[] burstTime) {
         this.arrivalTime = arrivalTime;

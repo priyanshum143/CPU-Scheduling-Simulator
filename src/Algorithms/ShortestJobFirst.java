@@ -1,5 +1,7 @@
 package Algorithms;
 
+import Utils.ProcessInfo;
+
 public class ShortestJobFirst {
     public static ProcessInfo simulateSJF(int[] arrivalTime, int[] burstTime) {
         ProcessInfo process = new ProcessInfo(arrivalTime, burstTime);
@@ -35,7 +37,7 @@ public class ShortestJobFirst {
 
         process.avgWaitTime = totalWaitTime / numberOfProcess;
         process.avgTAT = totalTAT / numberOfProcess;
-        process.throughput = numberOfProcess / (double) currTime;
+        process.throughput = (double) Math.round((numberOfProcess / (double) currTime) * 100) / 100;
     }
 
     // This function will find the minimum burst time according to the current time

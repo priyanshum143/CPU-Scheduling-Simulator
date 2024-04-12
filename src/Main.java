@@ -1,4 +1,5 @@
 import Algorithms.*;
+import Utils.ProcessInfo;
 
 import java.util.Arrays;
 import java.util.Scanner;
@@ -15,7 +16,7 @@ public class Main {
         int[] burstTime = new int[numberOfProcess];
         for(int i=0; i<numberOfProcess; i++) burstTime[i] = scanner.nextInt();
 
-        ProcessInfo process = RoundRobin.simulateRR(arrivalTime, burstTime, 3);
+        ProcessInfo process = SRTF.simulateSRTF(arrivalTime, burstTime);
         System.out.println("Arrival Time -> " + Arrays.toString(process.arrivalTime));
         System.out.println("Burst Time -> " + Arrays.toString(process.burstTime));
         System.out.println("Waiting Time -> " + Arrays.toString(process.waitingTime));
@@ -23,5 +24,6 @@ public class Main {
         System.out.println("Average wait time -> " + process.avgWaitTime);
         System.out.println("Average turn around time -> " + process.avgTAT);
         System.out.println("Throughput -> " + process.throughput);
+        System.out.println("Context Switches -> " + process.contextSwitches);
     }
 }

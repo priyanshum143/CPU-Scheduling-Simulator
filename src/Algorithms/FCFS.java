@@ -1,5 +1,7 @@
 package Algorithms;
 
+import Utils.ProcessInfo;
+
 public class FCFS {
     public static ProcessInfo simulateFCFS(int[] arrivalTime, int[] burstTime) {
         ProcessInfo process = new ProcessInfo(arrivalTime, burstTime);
@@ -35,7 +37,7 @@ public class FCFS {
 
         process.avgWaitTime = totalWaitTime / numberOfProcess;
         process.avgTAT = totalTAT / numberOfProcess;
-        process.throughput = numberOfProcess / (double) currTime;
+        process.throughput = (double) Math.round((numberOfProcess / (double) currTime) * 100) / 100;
     }
 
     // This function will find the minimum arrival time according to the current time
