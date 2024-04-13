@@ -22,6 +22,12 @@ public class ShortestJobFirst {
         for(int i=1; i<=numberOfProcess; i++) {
             int idx = findMinAT(tempArrivalTime, process.burstTime, currTime);
 
+            // This will make sure that CPU is not idle at current time
+            while(idx == -1) {
+                currTime++;
+                idx = findMinAT(tempArrivalTime, process.burstTime, currTime);
+            }
+
             totalWaitTime += currTime - tempArrivalTime[idx];
             process.waitingTime[idx] = currTime - tempArrivalTime[idx];
 
