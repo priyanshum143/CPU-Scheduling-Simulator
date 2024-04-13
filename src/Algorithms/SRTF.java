@@ -36,7 +36,14 @@ public class SRTF {
         int processCompleted = 0;
 
         while(processCompleted < numberOfProcess) {
-            currProcess = findMinAt(process.arrivalTime, remainingBurstTime, currTime);
+            currProcess = findMinAT(process.arrivalTime, remainingBurstTime, currTime);
+
+            // This will make sure that CPU is not idle at current time
+            while(currProcess == -1) {
+                currTime++;
+                currProcess = findMinAT(process.arrivalTime, remainingBurstTime, currTime);
+            }
+
             if(currProcess != prevProcess) contextSwitches++;
 
             if(!isAdded.get(currProcess)) {
@@ -75,7 +82,7 @@ public class SRTF {
     }
 
     // This function will find the minimum burst time according to the current time
-    private static int findMinAt(int[] arrivalTime, int[] burstTime, int currTime) {
+    private static int findMinAT(int[] arrivalTime, int[] burstTime, int currTime) {
         int idx = -1, minTime = Integer.MAX_VALUE;
         for(int i=0; i<arrivalTime.length; i++) {
             if(arrivalTime[i] <= currTime && burstTime[i] < minTime) {
