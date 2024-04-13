@@ -22,6 +22,11 @@ public class FCFS {
         for(int i=1; i<=numberOfProcess; i++) {
             int idx = findMinAT(tempArrivalTime);
 
+            // This will make sure that CPU is not idle at current time
+            if(currTime < tempArrivalTime[idx]) {
+                currTime = tempArrivalTime[idx];
+            }
+
             totalWaitTime += currTime - tempArrivalTime[idx];
             process.waitingTime[idx] = currTime - tempArrivalTime[idx];
 
